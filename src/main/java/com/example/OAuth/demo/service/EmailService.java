@@ -8,14 +8,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
 
-    /*@Autowired
+    @Autowired
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-    }*/
+    }
 
     public void sendVerificationEmail(User user) {
         String verificationUrl = "http://localhost/verify?token=" + user.getId(); // 인증 URL 생성
