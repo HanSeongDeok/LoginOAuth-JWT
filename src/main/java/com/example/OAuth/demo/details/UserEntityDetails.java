@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Data
-public class MemberDetails implements UserDetails {
+public class UserEntityDetails implements UserDetails {
     private final User user;
-    public MemberDetails(User user){
+    public UserEntityDetails(User user){
         this.user = user;
     }
     @Override

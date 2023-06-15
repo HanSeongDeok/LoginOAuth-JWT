@@ -18,13 +18,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/userAccess").hasRole("USER")
+                        .requestMatchers("/user-access/**").hasRole("USER")
+                        .requestMatchers("/").anonymous()
                         .requestMatchers("/signup").anonymous()
                         .anyRequest().permitAll())
                 .formLogin(Login -> Login
                         .loginPage("/login")
                         .loginProcessingUrl("/loginProc")
-                        .defaultSuccessUrl("/"))
+                        .defaultSuccessUrl("/user-access")
+                        .permitAll())
                 .logout(out -> out
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
