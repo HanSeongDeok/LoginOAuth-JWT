@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -74,13 +75,12 @@ public class EmailService {
     }
 
     // Pipe Line ------------------------------------------------------------
-
     // 권한정보 획득
     // Spring Security 인증과정에서 권한확인을 위한 기능
-    public Authentication getAuthentication(String token) {
+    /*public Authentication getAuthentication(String token) {
         UserDetails userDetails = userService.loadUserByUsername(getUserIdForAuthentication(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-    }
+    }*/
 
 
     /**
@@ -111,7 +111,7 @@ public class EmailService {
      * DecodeKey 가져옴
      * @return
      */
-    private byte[] getDecodeKey(String jwtSecret) {
+    public byte[] getDecodeKey(String jwtSecret) {
         byte[] decodedKey = Base64.getDecoder().decode(jwtSecret);
         // 바이트 배열 길이가 32바이트 미만인 경우, 길이를 32바이트로 확장
         if (decodedKey.length < 32) {
@@ -138,7 +138,7 @@ public class EmailService {
      * @param decodedKey
      * @return
      */
-    private String getToken(String token, byte[] decodedKey) {
+    public String getToken(String token, byte[] decodedKey) {
         return Jwts.parserBuilder()
                 .setSigningKey(new SecretKeySpec(decodedKey, "HmacSHA256"))
                 .build()

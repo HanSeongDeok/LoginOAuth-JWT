@@ -41,14 +41,12 @@ public class UserService implements UserDetailsService{
     public User getUserById(String id) {
         return userRepository.findOne(id);
     }
-
     public User getUserByToken(String token) {
         return userRepository.findByToken(token);
     }
 
     private boolean validateDuplicateMember(User user) {
-        Optional.ofNullable(user).map(u -> false).ifPresent(u -> {
-            System.out.println("이미 존재하는 회원");
+        Optional.ofNullable(userRepository.findOne(user.getId())).map(u -> false).ifPresent(u -> {
             throw new IllegalStateException("이미 존재하는 회원");
         });
         return true;
