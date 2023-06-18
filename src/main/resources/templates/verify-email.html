@@ -1,10 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>Email Verification</title>
 </head>
 <body>
 <h1>Email Verification</h1>
 <p>Thank you for registering. Your email has been verified successfully!</p>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script th:inline="javascript">
+  $(document).ready(function() {
+    let token = getAuthorizationHeader();
+    saveTokenToLocalStorage(token);
+  });
+
+  function getAuthorizationHeader() {
+    let token = null;
+    $.ajax({
+      url: '/verify-email',
+      type: 'GET',
+      beforeSend: function (xhr) {
+        let token = localStorage.getItem('token');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      },
+      success: function(response, status, xhr) {
+        token = xhr.getResponseHeader('Authorization');
+        localStorage.setItem('token', token);
+        console.log("good token")
+      },
+      error: function(xhr, status, error) {
+        console.error('Failed to get authorization header');
+      }
+    });
+    return token;
+  }
+
+  /*function getAuthorizationHeader() {
+    return $.ajax({
+      url: '/verify-email',
+      type: 'GET',
+      async: false
+    }).getResponseHeader('Authorization');
+  }*/
+
+  function saveTokenToLocalStorage(token) {
+    localStorage.setItem('token', token);
+  }
+</script>
 </body>
 </html>

@@ -98,9 +98,11 @@ public class EmailService {
      * @return
      */
     private String createHmacSHA256Token(User user) {
+        Claims claims = Jwts.claims()
+                .setSubject(user.getId());
+        claims.put("role", user.getRole());
         return Jwts.builder()
-                .setSubject(String.valueOf(user.getId()))
-                .setClaims(Jwts.claims().setSubject(user.getRole()))
+                .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(new SecretKeySpec(getDecodeKey(jwtSecret), "HmacSHA256"))

@@ -27,7 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/user-access/**").hasRole("USER")
+                        .requestMatchers("/user-access/**").anonymous()
                         .requestMatchers("/").anonymous()
                         .requestMatchers("/signup").anonymous()
                         .anyRequest().permitAll())

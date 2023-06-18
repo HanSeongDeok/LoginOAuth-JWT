@@ -40,6 +40,7 @@ public class JwtProvider {
 
     // Authorization Header 를 통해 인증을 한다.
     public String resolveToken(HttpServletRequest request) {
+        String test = request.getHeader("Authorization");
         return request.getHeader("Authorization");
     }
 }

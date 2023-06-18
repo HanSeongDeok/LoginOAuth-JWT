@@ -5,6 +5,7 @@ import com.example.OAuth.demo.entity.User;
 import com.example.OAuth.demo.service.EmailService;
 import com.example.OAuth.demo.service.UserService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -36,13 +37,18 @@ public class UserController {
         userService.join(user);
         System.out.println("이메일로 들어가 인증 받아야 함.");
         emailService.sendEmailVerification(userService.getUserById(user.getId()));
-        return "redirect:login";
+        return "login";
     }
 
     @GetMapping("/verify-email")
-    public String verifyEmail(@RequestParam("token") String token) {
+    public String verifyEmail(@RequestParam("token") String token, HttpServletResponse response) {
         if (emailService.verifyEmail(token, userService)) {
             System.out.println("인증 성공했습니다.");
+
+            // 로컬 스토리지에 토큰 저장을 위해 응답 헤더에 토큰 값을 설정
+            response.setHeader("Authorization", "Bearer " + token);
+            response.setStatus(HttpServletResponse.SC_OK);
+
             userService.changeVerified(emailService.getUserIdForAuthentication(token));
             return "redirect:login";
         } else {

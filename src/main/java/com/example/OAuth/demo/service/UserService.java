@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,15 +20,13 @@ import java.util.Optional;
 @Transactional
 public class UserService implements UserDetailsService{
     private UserRepository userRepository;
-    private SecurityConfig securityConfig;
 
     @Autowired
-    public UserService(SecurityConfig securityConfig, UserRepository userRepository) {
-        this.securityConfig = securityConfig;
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
     public String join(User user) throws MessagingException {
-        user.setPassword(securityConfig.passwordEncoder()
+        user.setPassword(new BCryptPasswordEncoder()
                 .encode(user.getPassword()));
         user.setRole("USER");
         user.setUsername(user.getId());

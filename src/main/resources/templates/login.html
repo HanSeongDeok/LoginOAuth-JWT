@@ -13,5 +13,37 @@
   <input type="password" name="password"/>
   <button type="submit">로그인</button>
 </form>
+
+<script th:inline="javascript">
+  $(document).ready(function() {
+    let token = getAuthorizationHeader();
+    saveTokenToLocalStorage(token);
+  });
+
+  function getAuthorizationHeader() {
+    let token = null;
+    $.ajax({
+      url: '/login',
+      type: 'GET',
+      beforeSend: function (xhr) {
+        let token = localStorage.getItem('token');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      },
+      success: function(response, status, xhr) {
+        token = xhr.getResponseHeader('Authorization');
+        localStorage.setItem('token', token);
+        console.log("good token")
+      },
+      error: function(xhr, status, error) {
+        console.error('Failed to get authorization header');
+      }
+    });
+    return token;
+  }
+  function saveTokenToLocalStorage(token) {
+    localStorage.setItem('token', token);
+  }
+</script>
+
 </body>
 </html>
