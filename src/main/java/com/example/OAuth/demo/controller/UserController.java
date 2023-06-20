@@ -65,7 +65,7 @@ public class UserController {
    @GetMapping("/user-access")
     public String userAccess(Model model, Authentication authentication) {
         //Authentication 객체를 통해 유저 정보를 가져올 수 있다.
-        UserEntityDetails userDetail = (UserEntityDetails)authentication.getPrincipal();    //userDetail 객체를 가져옴
+        UserEntityDetails userDetail = (UserEntityDetails)authentication.getAuthorities();    //userDetail 객체를 가져옴
         model.addAttribute("info", userDetail.getUsername());      //유저 이메일
         return "user-access";
     }

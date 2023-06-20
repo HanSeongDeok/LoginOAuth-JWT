@@ -3,6 +3,7 @@ package com.example.OAuth.demo.config;
 import com.example.OAuth.demo.provider.JwtAuthenticationFilter;
 import com.example.OAuth.demo.provider.JwtProvider;
 import com.example.OAuth.demo.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +17,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtProvider jwtProvider;
-    @Autowired
-    public SecurityConfig(JwtProvider jwtProvider) {
-        this.jwtProvider = jwtProvider;
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -31,11 +29,7 @@ public class SecurityConfig {
                         .requestMatchers("/").anonymous()
                         .requestMatchers("/signup").anonymous()
                         .anyRequest().permitAll())
-                .formLogin(Login -> Login
-                        .loginPage("/login")
-                        .loginProcessingUrl("/loginProc")
-                        .defaultSuccessUrl("/user-access")
-                        .permitAll())
+                .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.disable())
                 .logout(out -> out
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")

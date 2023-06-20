@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Entity
 @Getter
 @Setter
-@Table(name = "Users")
+@Table(name = "Users_TEST")
 public class User{
     @Id
     @Column(name = "user_id")

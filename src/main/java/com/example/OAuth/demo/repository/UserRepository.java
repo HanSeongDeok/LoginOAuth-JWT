@@ -35,7 +35,7 @@ public class UserRepository {
     }
 
     public List<User> findAll() {
-        return entityManager.createQuery("select u from User u",User.class)
+        return entityManager.createQuery("select u from Users u",User.class)
                 .getResultList();
     }
 
@@ -44,12 +44,12 @@ public class UserRepository {
     }
 
     public List<User> findByUsername(String username){
-        return entityManager.createQuery("select u from User u where u.username =: username", User.class)
+        return entityManager.createQuery("select u from Users u where u.username =: username", User.class)
                 .setParameter("username", username)
                 .getResultList();
     }
     public List<User> findByEmail(String email) {
-        return entityManager.createQuery("select u from User u where u.email =: email", User.class)
+        return entityManager.createQuery("select u from Users u where u.email =: email", User.class)
                 .setParameter("email", email)
                 .getResultList();
     }
