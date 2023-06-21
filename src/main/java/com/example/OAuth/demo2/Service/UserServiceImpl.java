@@ -1,5 +1,6 @@
 package com.example.OAuth.demo2.Service;
 
+import com.example.OAuth.demo.details.UserEntityDetails;
 import com.example.OAuth.demo2.domain.Role;
 import com.example.OAuth.demo2.domain.User;
 import com.example.OAuth.demo2.repository.RoleRepository;
@@ -7,13 +8,17 @@ import com.example.OAuth.demo2.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.apache.bcel.classfile.Module;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.Option;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +29,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 개인 연습 람다로 implement functional interface 구현
@@ -52,12 +58,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             log.error("User Not Found in the DB");
             throw new UsernameNotFoundException("User Not Found in the DB");
         }
-        return null;
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList();
+        user.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        });
+        return new org.springframework.security.core.userdetails.User(user.getUserId(),
+                user.getPassword(),
+                authorities);
     }
 
     @Override
     public User saveUser(User user) {
         log.info("Saving new user {} to the database", user.getUserId());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
