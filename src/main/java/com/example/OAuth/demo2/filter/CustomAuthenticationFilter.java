@@ -11,13 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -59,9 +56,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .compact();
 
         String refresh_token = Jwts.builder()
-                .setClaims(claims)
+                .setSubject(user.getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
                 .setIssuer(request.getRequestURL().toString())
+                .signWith(new SecretKeySpec(Base64.getDecoder().decode("JWTSECRETTOKENDECODERKEYTESTTESTLONGSTRINGRANDOMSTRING"), "HmacSHA256"))
                 .compact();
 
        /* response.setHeader("access_token", access_token);
