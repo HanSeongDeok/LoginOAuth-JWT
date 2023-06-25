@@ -3,6 +3,8 @@ package com.example.OAuth.demo2.api;
 import com.example.OAuth.demo2.Service.UserService;
 import com.example.OAuth.demo2.domain.Role;
 import com.example.OAuth.demo2.domain.User;
+import com.example.OAuth.demo2.provider.jwt.JwtAccessTokenImpl;
+import com.example.OAuth.demo2.provider.secrestkey.SecretKeyImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -17,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -31,6 +32,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @RequiredArgsConstructor
 public class UserResource {
     private final UserService userService;
+    private SecretKeyImpl secretKey = new SecretKeyImpl();
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUser() {
         return ResponseEntity.ok().body(userService.getUsers());
@@ -38,13 +40,25 @@ public class UserResource {
 
     @PostMapping("/user/save")
     public ResponseEntity<User> saveUser(@RequestBody User user) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
-        return ResponseEntity.created(uri).body(userService.saveUser(user));
+        URI uri = URI.create(ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/api/user/save")
+                .toUriString());
+        userService.saveUser(user);
+        // User 저장 후 Role 저장
+        userService.addRoleToUser(null, "ROLE_USER");
+        // 이메일 토큰을 담은 이메일 전송
+
+
+        return ResponseEntity.created(uri).body(userService.getUser(user.getUserId()));
     }
 
     @PostMapping("/role/save")
-    public ResponseEntity<Role> saveUser(@RequestBody Role role) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/save").toUriString());
+    public ResponseEntity<Role> saveRole(@RequestBody Role role) {
+        URI uri = URI.create(ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/api/role/save")
+                .toUriString());
         return ResponseEntity.created(uri).body(userService.saveRole(role));
     }
 
@@ -61,22 +75,17 @@ public class UserResource {
             try {
                 String refresh_token = authorizationHeader.substring("Bearer ".length());
                 JwtParser jwtParser = Jwts.parserBuilder()
-                        .setSigningKey(new SecretKeySpec(Base64.getDecoder().decode("JWTSECRETTOKENDECODERKEYTESTTESTLONGSTRINGRANDOMSTRING"), "HmacSHA256"))
+                        .setSigningKey(secretKey.getSecretKey())
                         .build();
 
                 Jws<Claims> decodeJwt = jwtParser.parseClaimsJws(refresh_token);
-                String userId = decodeJwt.getBody().getId();
+                String userId = decodeJwt.getBody().getSubject();
                 User user = userService.getUser(userId);
 
-                Claims claims = Jwts.claims().setSubject(user.getUserId());
-                claims.put("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+                Claims accessClaims = Jwts.claims().setSubject(user.getUserId());
+                accessClaims.put("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
 
-                String access_token = Jwts.builder()
-                        .setClaims(claims)
-                        .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-                        .setIssuer(request.getRequestURL().toString())
-                        .signWith(new SecretKeySpec(Base64.getDecoder().decode("JWTSECRETTOKENDECODERKEYTESTTESTLONGSTRINGRANDOMSTRING"), "HmacSHA256"))
-                        .compact();
+                String access_token = new JwtAccessTokenImpl(accessClaims, request).getAccessJwt();
 
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("access_token", access_token);

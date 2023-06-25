@@ -5,14 +5,10 @@ import com.example.OAuth.demo2.filter.CustomAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -38,9 +34,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(authorizationManager -> authorizationManager
                         .requestMatchers("/api/login/**", "/api/token/refresh/**").permitAll()
+                        .requestMatchers("/signup, /login, /home, /").permitAll()
                         .requestMatchers(GET, "/api/users/**").hasAnyAuthority("ROLE_USER")
                         .requestMatchers(POST, "/api/user/save**").hasAnyAuthority("ROLE_ADMIN")
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .addFilter(customAuthenticationFilter)
                 .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         /**

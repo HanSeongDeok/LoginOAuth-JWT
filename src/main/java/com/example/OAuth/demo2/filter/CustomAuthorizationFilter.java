@@ -1,5 +1,6 @@
 package com.example.OAuth.demo2.filter;
 
+import com.example.OAuth.demo2.provider.secrestkey.SecretKeyImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -10,16 +11,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.parser.Authorization;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.util.*;
 
@@ -28,6 +25,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Slf4j
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
+    private SecretKeyImpl secretKey = new SecretKeyImpl();
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh")) {
@@ -38,7 +36,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 try {
                     String token = authorizationHeader.substring("Bearer ".length());
                     JwtParser jwtParser = Jwts.parserBuilder()
-                            .setSigningKey(new SecretKeySpec(Base64.getDecoder().decode("JWTSECRETTOKENDECODERKEYTESTTESTLONGSTRINGRANDOMSTRING"), "HmacSHA256"))
+                            .setSigningKey(secretKey.getSecretKey())
                             .build();
 
                     Jws<Claims> decodeJwt = jwtParser.parseClaimsJws(token);
@@ -53,7 +51,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
-                    // TODO
+                    // TODO 무슨 동작을 하고 어떤 원리인지 제대로 파악하기
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     filterChain.doFilter(request, response);
 

@@ -23,7 +23,7 @@ public class Demo2Application{
 			userService.saveRole(new Role(null, "ROLE_USER"));
 			userService.saveRole(new Role(null, "ROLE_ADMIN"));
 
-			userService.saveUser(new User(null, "sdhan", "hsd970730@naver.com", "1234", false,null, new ArrayList<>()));
+			userService.saveUser(new User(null, "sdhan", "hsd730623@naver.com", "1234", false,null, new ArrayList<>()));
 
 			userService.addRoleToUser("sdhan", "ROLE_USER");
 			userService.addRoleToUser("sdhan", "ROLE_ADMIN");
