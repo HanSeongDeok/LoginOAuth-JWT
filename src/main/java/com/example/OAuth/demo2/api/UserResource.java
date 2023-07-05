@@ -49,7 +49,6 @@ public class UserResource {
         userService.addRoleToUser(null, "ROLE_USER");
         // 이메일 토큰을 담은 이메일 전송
 
-
         return ResponseEntity.created(uri).body(userService.getUser(user.getUserId()));
     }
 

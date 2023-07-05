@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/login/**", "/api/token/refresh/**").permitAll()
                         .requestMatchers("/signup, /login, /home, /").permitAll()
                         .requestMatchers(GET, "/api/users/**").hasAnyAuthority("ROLE_USER")
-                        .requestMatchers(POST, "/api/user/save**").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers(POST, "/api/user/save**").permitAll()
                         .anyRequest().permitAll())
                 .addFilter(customAuthenticationFilter)
                 .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
